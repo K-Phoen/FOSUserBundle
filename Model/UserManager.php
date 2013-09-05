@@ -124,11 +124,10 @@ abstract class UserManager implements UserManagerInterface, UserProviderInterfac
      */
     public function refreshUser(SecurityUserInterface $user)
     {
-        $class = $this->getClass();
-        if (!$user instanceof $class) {
+        if (!$this->supportsClass(get_class($user))) {
             throw new UnsupportedUserException('Account is not supported.');
         }
-        if (!$user instanceof User) {
+        if (!$user instanceof UserInterface) {
             throw new UnsupportedUserException(sprintf('Expected an instance of FOS\UserBundle\Model\User, but got "%s".', get_class($user)));
         }
 
@@ -216,6 +215,8 @@ abstract class UserManager implements UserManagerInterface, UserProviderInterfac
      */
     public function supportsClass($class)
     {
-        return $class === $this->getClass();
+        $userClass = $this->getClass();
+
+        return $userClass === $class || is_subclass_of($class, $userClass);
     }
 }
